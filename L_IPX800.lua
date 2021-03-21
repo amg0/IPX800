@@ -2,7 +2,7 @@ local MSG_CLASS = "IPX800"
 local IPX800_SERVICE = "urn:upnp-org:serviceId:IPX8001"
 local DEVICE_TYPE = "urn:schemas-upnp-org:device:IPX800:1"
 local DEBUG_MODE = false
-local version = "v0.56"
+local version = "v0.57"
 local UI7_JSON_FILE= "D_IPX800_UI7.json"
 local DEFAULT_DELAY = 60
 local RAND_DELAY = 10	-- startup delay
@@ -436,10 +436,10 @@ function ipx800HttpCall(lul_device,cmd)
 end
 
 -- Commander une sortie : http://IPX800_V3/leds.cgi?
--- Paramètre :
--- led=x avec x le numéro de la sortie, de 0 à 31.
--- Cette syntaxe permet la commande directe d'une sortie. Cette syntaxe commandera une impulsion si la sortie concernée a été préréglée avec au
--- moins un Tb non nul dans le site embarqué de l'IPX. Sinon la commande inversera tout simplement l'état de la sortie, comme un télérupteur.
+-- Paramï¿½tre :
+-- led=x avec x le numï¿½ro de la sortie, de 0 ï¿½ 31.
+-- Cette syntaxe permet la commande directe d'une sortie. Cette syntaxe commandera une impulsion si la sortie concernï¿½e a ï¿½tï¿½ prï¿½rï¿½glï¿½e avec au
+-- moins un Tb non nul dans le site embarquï¿½ de l'IPX. Sinon la commande inversera tout simplement l'ï¿½tat de la sortie, comme un tï¿½lï¿½rupteur.
 function setIPXLed(lul_device,num,value)		
 	lul_device = tonumber(lul_device)
 	num = tonumber(num)
@@ -545,14 +545,16 @@ function setCurrentTemperature(lul_device,newTargetValue)
 	lul_device = tonumber(lul_device)
 	debug(string.format("setCurrentTemperature(%d,%.1f)",lul_device,newTargetValue))
 	local v = string.format("%.1f",newTargetValue)
-	luup.variable_set("urn:upnp-org:serviceId:TemperatureSensor1", "CurrentTemperature", v, lul_device)
+	setVariableIfChanged("urn:upnp-org:serviceId:TemperatureSensor1", "CurrentTemperature", v, lul_device)
+	-- luup.variable_set("urn:upnp-org:serviceId:TemperatureSensor1", "CurrentTemperature", v, lul_device)
 end
 
 function setPowerTarget(lul_device,newTargetValue)
 	lul_device = tonumber(lul_device)
 	newTargetValue = tonumber(newTargetValue)
 	debug(string.format("setPowerTarget(%d,%d)",lul_device,newTargetValue))
-	luup.variable_set("urn:upnp-org:serviceId:SwitchPower1", "Status", newTargetValue, lul_device)
+	setVariableIfChanged("urn:upnp-org:serviceId:SwitchPower1", "Status", newTargetValue, lul_device)
+	-- luup.variable_set("urn:upnp-org:serviceId:SwitchPower1", "Status", newTargetValue, lul_device)
 end
 
 function setCurrentLightLevel(lul_device,newTargetValue)
