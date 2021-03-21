@@ -1,0 +1,101 @@
+Hello , I use a IPXv800 relay card from GCE Electronics company. It is a nice board with an embedded web server to control 8 output relays, 8 digital inputs, 4 analog inputs. It can be extended with some extensions cards to manage up to 32 relays / inputs and 16 analog inputs
+[url=http://gce-electronics.com/en/]http://gce-electronics.com/en/[/url]
+
+I only found a vera plugin for controlling window covers with it but nothing for the generic useage of relays & inputs. 
+so after the IPhoneLocator plugin, I decided to create my second real plugin for vera/UI5 ( not testable by me on UI7 ) which basically exposes the relays and the analog inputs as classical devices on VERA. The advantage of this approach is that these classical devices are then visible in any vera client app ( like phones etc )
+
+The approach is also to limit configuration inside VERA and reuse as much as possible all the configuration and parameters set in the IPX800 configuration. for instance VERA device names are imported from the IPX configuration
+
+[b]Version 0.38[/b]
+
+[i]Features[/i]
+[list]
+	[li]UI5 / UI7 compatible[/li]
+	[li]the Ipxv800 device, is creating child devices in any room you want for each element we want to control.[/li]
+	[li]reachability of the Ipx800 device is reported and reachable/not reachable are events useable in scenes/notifications[/li]
+	[li]dynamic icons for the ipx800 device based on its reachability[/li]
+	[li]Controls the on/off status of the 1..32 relays via a classic power switch device.[/li]
+	[li]Supports a window covers as a dimmer device, use of 3 ipx relays ( up , stop and down ) in pulse mode. Supports intermediate positions of window cover[/li]
+	[li]respects configuration inside the IPX800, if a relay is programmed inside IPX800 to be a pulse ( Tb <> 0 ) it will trigger a pulse[/li]
+	[li]Expose the 1..16 analog inputs values as either a temperature sensor , light sensor or humidity sensor device and display the correct value according to IPX800 sensor configuration[/li]
+	[li]Expose the 1..32 digital inputs as either a power switch device or a Motion detector device and display the correct status according to IPX800 digital input state[/li]
+	[li]Controllable set of relays/analog/input which needs to be exposed in the Vera ( not necessarily needed to expose all the relays/analogs/inputs ). You can change device names/titles but DO NOT change the altid please.[/li]
+	[li]configuration enables choice of update mechanism between these options. ( vera poll + ipx push is possible (& recommended) at the same time)
+		[list]
+			[li]scheduled polled from VERA to IPX for update of status with controllable frequency in seconds[/li]
+			[li]only manual refresh based on "refresh" uPNP action & UI button (for use in scenes)[/li]
+			[li]Direct Push update from IPX800 if configured in IPX ( server=your vera ip,  port=3480, Enable checkbox checked, Path = /data_request?id=lr_IPX800_Handler&mac=$M&deviceID=nnn where nnn is the vera device ID. [/li]
+		[/list]
+	[/li]
+	[li][b]UI5[/b] dashboard
+		[list]
+			[li]firmware of the ipx800[/li]
+			[li]button to force a data refresh[/li]
+			[li]button to trigger the import of names from IPX800[/li]
+			[li]in Control tab, button to switch DEBUG mode state[/li]
+		[/list]
+	[/li]
+	[li][b]SETTINGS [/b] js tab
+		[list]
+			[li]facilitate entry of parameters with Regular expression checking for format of parameters. [b]Dynamic[/b] save of changes in the Setting tabs. [/li]
+			[li]Button to test connectivity[/li]
+			[li]Button to open IPX web UI for configuration[/li]
+		[/list]
+	[/li]
+[/list]
+
+[i]Variables[/i]
+Service : urn:upnp-org:serviceId:IPX8001
+[list]
+	[li][b]Debug[/b]: email address used in iCloud account[/li]
+	[li][b]Version[/b]: version of the plugin[/li]
+	[li][b]Present[/b]: 1 if the IPX card is reachable, 0 otherwise[/li]
+	[li][b]IconCode[/b]: 100 when the device is reachable, 0 otherwise. controls the icon display on UI5 dashboard[/li]
+	[li][b]IpxIpAddress[/b]:ip address of the ipx800 card[/li]
+	[li][b]FirmwareVersion[/b]:reported firmware version of the ipx800 card[/li]
+	[li][b]User[/b]: user of the basic authentication of the HTTP interface to the card ( WARNING read below )[/li]
+	[li][b]Password[/b]: password for above. ( WARNING read below )[/li]
+	[li][b]UpdateFrequency[/b]: in sec, refresh frequency for getting data, or 0 for manual mode (using Refresh action from a scene or script). Push mode update from IPX can also be setup in the IPX configuration, see the Settings tab for explanation. Both Poll & Pusg mode can coexist[/li]
+	[li][b]OutputRelays[/b]:a comma separated list of relay number to report in VERA. for instance "1,4" to only see relay 1 and relay 4. optionaly use W letter to make a window cover device with this syntax. 1W-2-3-30-40 where 1 is the relay for up command, W is the type ( window ), 2 is the relay for stop commmand, 3 is the relay for down command, 30 is the up cycle , 40 (optional) is the down cycle duration in sec. Window cover requires that you configure your IPX relays in Pulse mode (Tb parameter)[/li]
+	[li][b]InputRelays[/b]:a comma separated list of digital input number to report in VERA. for instance "1,4" to only see input 1 and input 4. Optionally each number can be followed by a letter to force a device type. P for powerswitch, M for motion sensor. example  1M,2P[/li]
+	[li][b]AnalogInputs[/b]:acomma separated list of relay number to report in VERA. for instance "1,2" to only see analog 1 and 2.Optionally each number can be followed by a letter to force a device type. T for Temp sensor, L for light sensor, H for humidity sensor. example  1T,2L,3,4H[/li]
+[/list]
+
+[i]Notifications[/i]
+[list]
+	[li]"[b]Connection State[/b]" : When the device becomes reachable or not reachable, in no repeat mode[/li]
+	[li]Notification on child devices can be set ( like when temp goes above a certain level etc )[/li]
+[/list]
+
+
+[i]uPNP Actions[/i]
+[list]
+	[li]action "[b]Refresh[/b]" : for forcing a refresh of data from the IPX to Vera.[/li]
+	[li]action "[b]GetPresent[/b]" : for reporting if the IPX800 card is reachable or not[/li]
+	[li]action "[b]IPXNames[/b]" : Read the configured relay/sensor names in IPX800 and set vera device names accordingly. works on previous firmware if you did not customize it on the IPX but on IPX firmware >=3.05.46 it takes advantage of the new ioname.xml page for that.[/li]
+	[li]action "[b]SetDebug[/b]" : Set or unset DEBUG mode[/li]
+	[li]special "[b]Handler[/b]" : to enable IPX to trigger refreshes in a Push mode[/li]
+[/list]
+
+[i]WARNING[/i]
+[list][li][s]Basic authentication does not work. it is because of the IPX800.  Vera always sends the Basic authentication information in lower case letter in the http header like the standard requires and the IPX800 card expects it with a capital "A". no easy workaround except changing code on the VERA which I refuse to do (for now ).	SO: do not use user / password on your IPX800 card and in this plugin. this is coded, ready to be used for the day GCE fixes their http server side.[/s][/li]
+[li]this has been [glow=red,2,300]fixed [/glow]by GCE with their latest firmware >= [glow=red,2,300]3.05.46[/glow]. I tested Basic authentication from the plugin to the IPX with this version and it works[/li]
+[li]v0.38 reads status.xml page as a fallback plan for card with older firmware than 3.05.38 but still with http support[/li]
+[/list]
+
+[i]Install[/i]
+
+[list]
+	[li]For Public version in the App Store [url=http://apps.mios.com/plugin.php?id=7426]http://apps.mios.com/plugin.php?id=7426[/url][/li] 
+	[li]For Beta versions: [url=http://apps.mios.com/test-plugin.php?id=7426&show=versions]http://apps.mios.com/test-plugin.php?id=7426&show=versions[/url] [/li] 
+	[li]source files on [url=http://code.mios.com/trac/mios_ipx800/browser/trunk]http://code.mios.com/trac/mios_ipx800/browser/trunk[/url][/li]
+	[list]
+		[li]if you chose this method, you need to install the ICON ( .png ) file manually into the folder [b]/www/cmh/skins/default/icons[/b] of your vera[/li]
+		[li]All other files can be installed by uploading Luup files from your Vera page in Apps / Develop / Luup files[/li]
+	[/list]
+[/list]
+Final thx to all authors of plugin from which I stole some snipset of code here and there, the list is too long to share here.
+
+Feedbacks are welcomed and if this generates enough interest, I ll see if we can create a sub forum for it, for now, let's use this thread
+
+Enjoy...

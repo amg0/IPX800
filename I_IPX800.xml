@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<implementation>
+  <functions>
+  </functions>
+  <files>L_IPX800.lua</files>
+  <startup>initstatus</startup>
+  <actionList>
+	<action>
+		<serviceId>urn:upnp-org:serviceId:IPX8001</serviceId>
+		<name>Refresh</name>
+		<run>
+			refreshDevice(lul_device,true)
+		</run>    
+	</action>
+
+	<action>
+		<serviceId>urn:upnp-org:serviceId:IPX8001</serviceId>
+		<name>IPXNames</name>
+		<run>
+			updateChildDevicesNames(lul_device)
+		</run>    
+	</action>
+
+	<action>
+      <serviceId>urn:upnp-org:serviceId:IPX8001</serviceId>
+      <name>GetPresent</name>
+      <run>
+			luup.variable_get(service, "Present", lul_device)
+      </run>
+    </action>
+	
+    <action>
+	 <serviceId>urn:upnp-org:serviceId:IPX8001</serviceId>
+	 <name>SetDebug</name>
+	  <run>
+			setDebugMode(lul_device,lul_settings.newDebugMode)
+	  </run>
+	</action>
+
+    <action>
+      <serviceId>urn:upnp-org:serviceId:SwitchPower1</serviceId>
+      <name>SetTarget</name>
+      <run>
+			UserSetPowerTarget(lul_device,lul_settings.newTargetValue)
+      </run>
+    </action>
+	
+    <action>
+      <serviceId>urn:upnp-org:serviceId:TemperatureSensor1</serviceId>
+      <name>GetCurrentTemperature</name>
+      <run>
+			getCurrentTemperature(lul_device)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:micasaverde-com:serviceId:SecuritySensor1</serviceId>
+      <name>SetArmed</name>
+      <run>
+			UserSetArmed(lul_device,lul_settings.newArmedValue)
+      </run>
+    </action>
+
+	<action>
+		<serviceId>urn:upnp-org:serviceId:Dimming1</serviceId>
+		<name>SetLoadLevelTarget</name>
+		<run>
+			UserSetLoadLevelTarget(lul_device,lul_settings.newLoadlevelTarget)
+		</run>
+	</action>
+	
+	<action>
+		<serviceId>urn:upnp-org:serviceId:WindowCovering1</serviceId>
+		<name>Up</name>
+		<run>
+			UserWindowCovering(lul_device,'up',100)
+		</run>
+	</action>
+	<action>
+		<serviceId>urn:upnp-org:serviceId:WindowCovering1</serviceId>
+		<name>Down</name>
+		<run>
+			UserWindowCovering(lul_device,'down',0)
+		</run>
+	</action>
+	<action>
+		<serviceId>urn:upnp-org:serviceId:WindowCovering1</serviceId>
+		<name>Stop</name>
+		<run>
+			UserWindowCovering(lul_device,'stop',0)
+		</run>
+	</action>
+
+	
+</actionList>
+</implementation>
